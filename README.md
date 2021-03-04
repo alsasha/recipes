@@ -1,4 +1,4 @@
-# recipe (training project)
+# recipe
 ### What the project looks like
 
 ![screen1](src/assets/screen1.bmp)
