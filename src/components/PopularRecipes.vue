@@ -35,6 +35,10 @@ export default {
     },
   },
   methods: {
+    onRecipeClick(value) {
+      this.$bvModal.show('modal');
+      this.$emit('onRecipeClick', value);
+    },
     onPrevItemMouseOver(poster) {
       this.$emit('onPrevItemMouseOver', poster);
     }

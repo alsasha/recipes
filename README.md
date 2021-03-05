@@ -3,6 +3,7 @@
 
 ![screen1](src/assets/screen1.bmp)
 ![screen2](src/assets/screen2.bmp)
+![screen3](src/assets/screen3.bmp)
 ## Project setup
 ```
 npm install

@@ -41,6 +41,6 @@ export default {
     left: 0;
     right: 0;
     bottom: 0;
-    background-image: linear-gradient(to top left, rgba(34, 85, 29, 0.85), rgba(21, 97, 74, 0.85))
+    background-image: linear-gradient(to top left, rgba(34, 85, 29, 0.85), rgba(21, 97, 74, 0.85));
   }
 </style>

@@ -31,6 +31,9 @@ export default {
     ...mapGetters(['searchRecipes', 'searchTitleValue']),
   },
   methods: {
+    onRecipeClick() {
+      this.$bvModal.show('modal');
+    },
     onPrevItemMouseOver(poster) {
       this.$emit('onPrevItemMouseOver', poster);
     }
