@@ -27,12 +27,10 @@ export default {
     sliding: null
   }),
   methods: {
-    ...mapActions(['getCategoryResult', 'toggleShowPopularValue', 'changePopularTitleValue']),
+    ...mapActions(['getCategoryResult', 'changeTitleValue']),
     onCategoryClickEmit(value) {
-      this.toggleShowPopularValue(true);
-      this.changePopularTitleValue(`${value} category`);
+      this.changeTitleValue(`${value} category`);
       this.getCategoryResult(value);
-
     }
   }
 }

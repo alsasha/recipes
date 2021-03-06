@@ -1,6 +1,6 @@
 <template>
-  <BNavbar class='header-navbar'>
-    <BContainer>
+  <BContainer>
+    <BNavbar class='header-navbar'>
       <BNavbarBrand>
         <BIconJournalBookmark
           class="mr-2"
@@ -9,13 +9,17 @@
         </BIconJournalBookmark>
         <h3 class="header-title">recipes</h3>
       </BNavbarBrand>
-      <BIconHeartFill class='header-favorite ml-auto mr-3'/>
+      <BIconHeartFill
+        @click='onFavClick'
+        class='header-favorite ml-auto mr-3'
+      />
       <BNavForm class="header-navform">
         <BInputGroup>
           <BInputGroupPrepend is-text>
             <BIconSearch></BIconSearch>
           </BInputGroupPrepend>
           <BFormInput
+            @keydown.enter.prevent
             autocomplete="off"
             class="mr-sm-2"
             placeholder="Search"
@@ -24,12 +28,12 @@
           ></BFormInput>
         </BInputGroup>
       </BNavForm>
-    </BContainer>
-  </BNavbar>
+    </BNavbar>
+  </BContainer>
 </template>
 
 <script>
-import { mapActions } from 'vuex';
+import { mapActions, mapGetters } from 'vuex';
 
 export default {
   name: 'Header',
@@ -38,17 +42,27 @@ export default {
   }),
   watch: {
     searchTitleValue: 'searchRecipe',
+    recipeList: 'resetInput',
+  },
+  computed: {
+    ...mapGetters(['recipeList']),
   },
   methods: {
-    ...mapActions(['getSearchResult', 'getCategoryResult', 'toggleShowPopularValue', 'changeSearchTitleValue']),
+    ...mapActions(['getSearchResult', 'toggleFavorites', 'changeTitleValue', 'changeRecipeList']),
     searchRecipe(value) {
       if (value) {
-        this.toggleShowPopularValue(false);
         this.getSearchResult(value);
-        this.changeSearchTitleValue(`${value} search result`);
-      } else {
-        this.toggleShowPopularValue(true);
+        this.changeTitleValue(`${value} search result`);
+      } else if (this.recipeList === 'search') {
+        this.changeTitleValue('Popular recipes in this week');
+        this.changeRecipeList('popular');
       }
+    },
+    onFavClick() {
+      this.toggleFavorites();
+    },
+    resetInput() {
+      this.searchTitleValue = this.recipeList !== 'search' ? '' : this.searchTitleValue;
     }
   }
 }

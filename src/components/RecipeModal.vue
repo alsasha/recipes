@@ -18,17 +18,18 @@
       <BIconHeartFill
         class="recipe-modal-fav"
         font-scale='2'
-        @click='onFavClick(recipe.idMeal, $event)'
+        :style='iconStyle'
+        @click='onFavClick(recipe.idMeal, recipe, $event)'
       ></BIconHeartFill>
     </header>
     <BRow>
-      <BCol cols='5'>
+      <BCol lg='5' >
         <div class="recipe-modal-img-wrap mb-3">
           <div class="recipe-modal-img" :style='posterStyle'></div>
         </div>
         <BTable :items='items' class="recipe-modal-table"></BTable>
       </BCol>
-      <BCol cols='7'>
+      <BCol lg='7' >
         <div class="recipe-modal-info">
           <h2 class="recipe-modal-header">
             {{recipe.strMeal}}
@@ -48,6 +49,8 @@
 </template>
 
 <script>
+import { mapGetters, mapActions } from 'vuex';
+
 export default {
   name: 'RecipeModal',
   props: {
@@ -57,6 +60,7 @@ export default {
     },
   },
   computed: {
+    ...mapGetters(['favoriteRecipes']),
     tags() {
       return this.recipe.strTags ? this.recipe.strTags.split(',').slice(0, 2) : [];
     },
@@ -78,14 +82,26 @@ export default {
       }
       return tableData;
     },
+    isFav() {
+      return this.favoriteRecipes[this.recipe.idMeal];
+    },
+    iconStyle() {
+      return this.isFav ? 'color: lightsalmon' : 'color: white';
+    }
   },
   methods: {
+    ...mapActions(['addToFavorites', 'removeFromFavorites']),
     onBackClick() {
       this.$bvModal.hide('modal');
     },
-    onFavClick(id, e) {
-      console.log(id);
-      e.target.style.color = 'lightsalmon';
+    onFavClick(id, recipe, e) {
+      if (this.isFav) {
+        e.target.style.color = 'white';
+        this.removeFromFavorites(id);
+      } else {
+        e.target.style.color = 'lightsalmon';
+        this.addToFavorites(recipe);
+      }
     }
   },
 };

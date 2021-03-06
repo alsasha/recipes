@@ -1,7 +1,15 @@
 import axios from '@/plugins/axios';
 import mutations from '@/store/mutations';
 
-const { SET_POPULAR_RECIPES, SET_CURRENT_RECIPES, SET_CATEGORIES, TOGGLE_SEARCH_VALUE, CHANGE_SEARCH_TITLE_VALUE, CHANGE_POPULAR_TITLE_VALUE } = mutations;
+const {
+  SET_POPULAR_RECIPES,
+  SET_SEARCH_RECIPES,
+  SET_CATEGORY_RECIPES,
+  SET_CATEGORIES,
+  CHANGE_TITLE_VALUE,
+  CHANGE_RECIPE_LIST,
+  SET_MODAL_RECIPE,
+} = mutations;
 
 function serializeRecipes(arr) {
   return arr.reduce((acc, item) => {
@@ -16,41 +24,46 @@ const recipes = {
     categoryRecipes: {},
     searchRecipes: {},
     categories: [],
-    isShowPopular: true,
-    searchTitleValue: '',
-    popularTitleValue: '',
+    titleValue: 'Popular recipes in this week',
+    recipeList: 'popular',
+    modalRecipe: {},
   },
   getters: {
     popularRecipes: ({ popularRecipes }) => popularRecipes,
-    categories: ({ categories }) => categories,
-    isShowPopular: ({ isShowPopular }) => isShowPopular,
     searchRecipes: ({ searchRecipes }) => searchRecipes,
-    searchTitleValue: ({ searchTitleValue }) => searchTitleValue,
-    popularTitleValue: ({ popularTitleValue }) => popularTitleValue,
+    categoryRecipes: ({ categoryRecipes }) => categoryRecipes,
+    categories: ({ categories }) => categories,
+    titleValue: ({ titleValue }) => titleValue,
+    recipeList: ({ recipeList }) => recipeList,
+    modalRecipe: ({ modalRecipe }) => modalRecipe,
   },
   mutations: {
     [SET_POPULAR_RECIPES](state, value) {
       state.popularRecipes = value;
     },
-    [SET_CURRENT_RECIPES](state, value) {
+    [SET_SEARCH_RECIPES](state, value) {
       state.searchRecipes = value;
+    },
+    [SET_CATEGORY_RECIPES](state, value) {
+      state.categoryRecipes = value;
     },
     [SET_CATEGORIES](state, value) {
       state.categories = value;
     },
-    [TOGGLE_SEARCH_VALUE](state, bool) {
-      state.isShowPopular = bool;
+    [CHANGE_TITLE_VALUE](state, value) {
+      state.titleValue = value;
     },
-    [CHANGE_SEARCH_TITLE_VALUE](state, value) {
-      state.searchTitleValue = value;
+    [CHANGE_RECIPE_LIST](state, value) {
+      state.recipeList = value;
     },
-    [CHANGE_POPULAR_TITLE_VALUE](state, value) {
-      state.popularTitleValue = value;
+    [SET_MODAL_RECIPE](state, value) {
+      state.modalRecipe = value;
     },
   },
   actions: {
-    async getPopularRecipes({ commit }) {
+    async getPopularRecipes({ commit, dispatch }) {
       try {
+        dispatch('togglePreloader', true);
         let arr = [];
         for (let i = 0; i < 8; i++) {
           const response = await axios.get('/random.php');
@@ -59,44 +72,98 @@ const recipes = {
         arr = arr.flat().map(item => item.meals[0]);
         const resipeObjects = serializeRecipes(arr);
         commit(SET_POPULAR_RECIPES, resipeObjects);
-      } catch (err) {
-        console.log(err);
+        dispatch('changeRecipeList', 'popular');
+      } catch ({ message }) {
+        this.$bvToast.toast('Error', {
+          message,
+          variant: 'error',
+          solid: true,
+        });
+      } finally {
+        dispatch('togglePreloader', false);
       }
     },
     async getSearchResult({ commit, dispatch }, value) {
-      const response = await axios.get('/search.php', { params: {
-          s: value,
+      try {
+        dispatch('togglePreloader', true);
+        const response = await axios.get('/search.php', { params: {
+            s: value,
+          }
+        });
+        dispatch('changeRecipeList', 'search');
+        if (!response.meals) {
+          const title = 'Search result is not found';
+          dispatch('changeTitleValue', title);
+          return commit(SET_SEARCH_RECIPES, {});
         }
-      });
-      if (!response.meals) {
-        const title = 'Search result is not found';
-        dispatch('changeSearchTitleValue', title);
-        return commit(SET_CURRENT_RECIPES, {});
+        const resultRecipes = serializeRecipes(response.meals);
+        commit(SET_SEARCH_RECIPES, resultRecipes);
+      } catch ({ message }) {
+        this.$bvToast.toast('Error', {
+          message,
+          variant: 'error',
+          solid: true,
+        });
+      } finally {
+        dispatch('togglePreloader', false);
       }
-      const resultRecipes = serializeRecipes(response.meals);
-      commit(SET_CURRENT_RECIPES, resultRecipes);
     },
-    async getCategoryResult({ commit }, value) {
-      const response = await axios.get('/filter.php', { params: {
+    async getCategoryResult({ commit, dispatch }, value) {
+      try {
+        dispatch('togglePreloader', true);
+        const response = await axios.get('/filter.php', { params: {
           c: value,
         }
-      });
-      const resultRecipes = serializeRecipes(response.meals);
-      commit(SET_POPULAR_RECIPES, resultRecipes);
+        });
+        const resultRecipes = serializeRecipes(response.meals);
+        commit(SET_CATEGORY_RECIPES, resultRecipes);
+        dispatch('changeRecipeList', 'category');
+      } catch ({ message }) {
+        this.$bvToast.toast('Error', {
+          message,
+          variant: 'error',
+          solid: true,
+        });
+      } finally {
+        dispatch('togglePreloader', false);
+      }
     },
-    async getCategories({ commit }) {
-      const response = await axios.get('/list.php?c=list');
-      commit(SET_CATEGORIES, response.meals);
+    async getRecipeById({ commit, dispatch }, id) {
+      try {
+        dispatch('togglePreloader', true);
+        const response = await axios.get(`/lookup.php?i=${id}`);
+        commit(SET_MODAL_RECIPE, response.meals[0]);
+      } catch ({ message }) {
+        this.$bvToast.toast('Error', {
+          message,
+          variant: 'error',
+          solid: true,
+        });
+      } finally {
+        dispatch('togglePreloader', false);
+      }
     },
-    toggleShowPopularValue({ commit }, bool) {
-      commit(TOGGLE_SEARCH_VALUE, bool);
+    async getCategories({ commit, dispatch }) {
+      try {
+        dispatch('togglePreloader', true);
+        const response = await axios.get('/list.php?c=list');
+        commit(SET_CATEGORIES, response.meals);
+      } catch ({ message }) {
+        this.$bvToast.toast('Error', {
+          message,
+          variant: 'error',
+          solid: true,
+        });
+      } finally {
+        dispatch('togglePreloader', false);
+      }
     },
-    changeSearchTitleValue({ commit }, value) {
-      commit(CHANGE_SEARCH_TITLE_VALUE, value);
+    changeTitleValue({ commit }, value) {
+      commit(CHANGE_TITLE_VALUE, value);
     },
-    changePopularTitleValue({ commit }, value) {
-      commit(CHANGE_POPULAR_TITLE_VALUE, value);
-    }
+    changeRecipeList({ commit }, value) {
+      commit(CHANGE_RECIPE_LIST, value);
+    },
   }
 };
 

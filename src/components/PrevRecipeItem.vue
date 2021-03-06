@@ -55,6 +55,7 @@ export default {
     display: flex;
     transition: all 0.2s ease;
     min-height: 150px;
+    height: 100%;
   }
   .prev-item-img {
     flex: 1;
@@ -79,5 +80,13 @@ export default {
   .prev-item-btn {
     background-color: rgba(21, 97, 74, 0.85);
     color: white;
+  }
+  @media (max-width: 768px) {
+    .prev-item-title {
+      font-size: 18px;
+    }
+    .prev-item-btn {
+      padding: 8px;
+    }
   }
 </style>

@@ -2,7 +2,7 @@
   <div class="mb-4">
     <BRow>
       <BCol
-        v-for='(value, key, index) in popularRecipes'
+        v-for='(value, key, index) in categoryRecipes'
         :key='index'
         lg='4'
         sm='6'
@@ -24,12 +24,12 @@ import PrevRecipeItem from '@/components/PrevRecipeItem.vue';
 import { mapGetters } from 'vuex';
 
 export default {
-  name: 'PopularRecipes',
+  name: 'CategoryRecipes',
   components: {
     PrevRecipeItem,
   },
   computed: {
-    ...mapGetters(['popularRecipes']),
+    ...mapGetters(['categoryRecipes']),
   },
   methods: {
     onRecipeClick(id) {
@@ -38,13 +38,9 @@ export default {
     onPrevItemMouseOver(poster) {
       this.$emit('onPrevItemMouseOver', poster);
     }
-  }
+  },
 }
 </script>
 
 <style scoped>
-  .prev-items-wrap {
-    display: flex;
-    flex-wrap: wrap;
-  }
 </style>

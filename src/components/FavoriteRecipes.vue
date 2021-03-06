@@ -1,35 +1,39 @@
 <template>
-  <div class="mb-4">
-    <BRow>
-      <BCol
-        v-for='(value, key, index) in popularRecipes'
-        :key='index'
-        lg='4'
-        sm='6'
-        class="mb-3"
+  <div>
+    <BRow >
+      <template
+        v-for='(value, key, index) in favoriteRecipes'
       >
-        <PrevRecipeItem
+        <BCol
+        class="mb-3"
+        xl='4' md='6' sm='12'
+        :key='key'
+        :index='index'
+        v-if='value'
+      >
+        <RecipeItem
           @mouseover.native="onPrevItemMouseOver(value.strMealThumb)"
           @click.native="onRecipeClick(value.idMeal)"
-          :recipe='value'
-          />
+          :recipe=value
+        />
       </BCol>
+      </template>
     </BRow>
   </div>
 </template>
 
 <script>
-import PrevRecipeItem from '@/components/PrevRecipeItem.vue';
+import RecipeItem from '@/components/RecipeItem.vue';
 
 import { mapGetters } from 'vuex';
 
 export default {
-  name: 'PopularRecipes',
+  name: 'FavoriteRecipes',
   components: {
-    PrevRecipeItem,
+    RecipeItem,
   },
   computed: {
-    ...mapGetters(['popularRecipes']),
+    ...mapGetters(['favoriteRecipes']),
   },
   methods: {
     onRecipeClick(id) {
@@ -38,13 +42,9 @@ export default {
     onPrevItemMouseOver(poster) {
       this.$emit('onPrevItemMouseOver', poster);
     }
-  }
+  },
 }
 </script>
 
 <style scoped>
-  .prev-items-wrap {
-    display: flex;
-    flex-wrap: wrap;
-  }
 </style>
